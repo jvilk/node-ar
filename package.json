@@ -14,8 +14,6 @@
   ],
   "main": "lib/ar",
   "dependencies": {
-    "typescript": "0.9.5",
-    "requirejs": "*",
     "grunt": "*",
     "grunt-ts": "latest",
     "grunt-shell": "~0.5.0",
