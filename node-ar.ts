@@ -101,7 +101,7 @@ function trimNulls(str: string): string {
 export class ARCommonFile implements ARFile {
   constructor(public data: NodeBuffer) {
     if (this.fmag() !== "`\n") {
-      throw new Error("Record is missing header trailer string.");
+      throw new Error("Record is missing header trailer string; instead, it has: " + this.fmag());
     }
   }
   public name(): string {
@@ -154,6 +154,16 @@ export class BSDARFile extends ARCommonFile implements ARFile {
     this.appendedFileName = super.name().substr(0, 3) === "#1/";
   }
   /**
+   * Returns the number of bytes that the appended name takes up in the content
+   * section.
+   */
+  private appendedNameSize(): number {
+    if (this.appendedFileName) {
+      return parseInt(super.name().substr(3), 10);
+    }
+    return 0;
+  }
+  /**
    * BSD ar stores extended filenames by placing the string "#1/" followed by
    * the file name length in the file name field.
    *
@@ -162,7 +172,7 @@ export class BSDARFile extends ARCommonFile implements ARFile {
   public name(): string {
     var length, name = super.name(), headerSize;
     if (this.appendedFileName) {
-      length = parseInt(name.substr(3), 10);
+      length = this.appendedNameSize();
       // The filename is stored right after the header.
       headerSize = super.headerSize();
       // Unfortunately, even though they give us the *explicit length*, they add
@@ -172,16 +182,15 @@ export class BSDARFile extends ARCommonFile implements ARFile {
     return name;
   }
   /**
-   * This header variant might be longer, as it could store the file name after
-   * the common header.
-   *
-   * Includes padding bytes before the data section.
+   * Returns a *slice* of the backing buffer that has all of the file's data.
+   * For BSD archives, we need to add in the size of the file name, which,
+   * unfortunately, is included in the fileSize number.
    */
-  public headerSize(): number {
-    var contentsSize = super.headerSize() + (this.appendedFileName ?
-      parseInt(super.name().substr(3), 10) : 0);
-    // The data section is 4 byte aligned.
-    return contentsSize + getPaddingBytes(contentsSize, 4);
+  public fileData(): NodeBuffer {
+    var headerSize = this.headerSize(),
+        appendedNameSize = this.appendedNameSize();
+    return this.data.slice(headerSize + appendedNameSize,
+                           headerSize + this.fileSize() - appendedNameSize);
   }
 }
 
