@@ -10,7 +10,11 @@ import ar = require('../node-ar');
 import fs = require('fs');
 import path = require('path');
 import util = require('util');
-var glob = require('glob');
+var glob = require('glob'),
+    cwd = process.cwd();
+
+// Change to the test runner directory.
+process.chdir(__dirname);
 
 /**
  * Pads the number with zeroes so it is length long as a string.
@@ -89,9 +93,9 @@ class Test {
   }
 
   /**
-   * Runs the test, and prints out status.
+   * Runs the test, prints out status, and returns true if it passed.
    */
-  public run(testNumber: number, totalTests: number): void {
+  public run(testNumber: number, totalTests: number): boolean {
     var dirName: string;
     // Outputs a 76 character-wide line, without a newline. Leaves 4 characters
     // for test status.
@@ -113,9 +117,11 @@ class Test {
       }
       this.testFiles();
       util.print("..OK\n");
+      return true;
     } catch (e) {
       util.print("FAIL\n");
-      console.log(e);
+      console.log("\t" + e);
+      return false;
     }
   }
 }
@@ -136,12 +142,12 @@ class TestSuite {
    * Run all of the tests in the suite.
    */
   public run(): void {
-    var i, length = this.tests.length;
+    var i, length = this.tests.length, passed = 0;
     console.log("Running " + length + " tests...");
     for (i = 0; i < length; i++) {
-      this.tests[i].run(i+1, length);
+      if (this.tests[i].run(i+1, length)) passed++;
     }
-    console.log("Tests complete!");
+    console.log("Tests complete! " + passed + "/" + this.tests.length + " (" + ((passed / this.tests.length)*100) + "%) passed.");
   }
 }
 
@@ -149,4 +155,6 @@ class TestSuite {
 glob("*.a", function (er, files: string[]) {
   if (er != null) throw er;
   (new TestSuite(files)).run();
+  // Change back to the directory the user ran the script from.
+  process.chdir(cwd);
 });

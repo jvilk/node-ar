@@ -58,6 +58,21 @@ function getPaddingBytes(size: number, alignment: number): number {
 }
 
 /**
+ * Trims trailing whitespace from the given string (both ends, although we
+ * only really need the RHS).
+ */
+function trimWhitespace(str: string): string {
+  return String.prototype.trim ? str.trim() : str.replace(/^\s+|\s+$/gm, '');
+}
+
+/**
+ * Trims trailing NULL characters.
+ */
+function trimNulls(str: string): string {
+  return str.replace(/\0/g, '');
+}
+
+/**
  * All archive variants share this header before files, but the variants differ
  * in how they handle odd cases (e.g. files with spaces, long filenames, etc).
  *
@@ -75,16 +90,9 @@ export class ARCommonFile implements ARFile {
       throw new Error("Record is missing header trailer string.");
     }
   }
-  /**
-   * Trims trailing whitespace from the given string (both ends, although we
-   * only really need the RHS).
-   */
-  private trimWhitespace(str: string): string {
-    return String.prototype.trim ? str.trim() : str.replace(/^\s+|\s+$/gm, '');
-  }
   public name(): string {
     // The name field is padded by whitespace, so trim any lingering whitespace.
-    return this.trimWhitespace(this.data.toString('utf8', 0, 16));
+    return trimWhitespace(this.data.toString('utf8', 0, 16));
   }
   public date(): Date { return new Date(parseInt(this.data.toString('ascii', 16, 28), 10)); }
   public uid(): number { return parseInt(this.data.toString('ascii', 28, 34), 10); }
@@ -143,7 +151,9 @@ export class BSDARFile extends ARCommonFile implements ARFile {
       length = parseInt(name.substr(3), 10);
       // The filename is stored right after the header.
       headerSize = super.headerSize();
-      name = this.data.toString('utf8', headerSize, headerSize + length);
+      // Unfortunately, even though they give us the *explicit length*, they add
+      // NULL bytes and include that in the length, so we must strip them out.
+      name = trimNulls(this.data.toString('utf8', headerSize, headerSize + length));
     }
     return name;
   }
