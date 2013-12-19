@@ -11,6 +11,7 @@ export interface ARFile {
   uid(): number;
   gid(): number;
   mode(): number;
+  dataSize(): number;
   fileSize(): number;
   headerSize(): number;
   totalSize(): number;
@@ -113,9 +114,14 @@ export class ARCommonFile implements ARFile {
   public gid(): number { return parseInt(this.data.toString('ascii', 34, 40), 10); }
   public mode(): number { return parseInt(this.data.toString('ascii', 40, 48), 8); }
   /**
-   * Total size of the file. Does not include padding bytes.
+   * Total size of the data section in the record. Does not include padding bytes.
    */
-  public fileSize(): number { return parseInt(this.data.toString('ascii', 48, 58), 10); }
+  public dataSize(): number { return parseInt(this.data.toString('ascii', 48, 58), 10); }
+  /**
+   * Total size of the *file* data in the data section of the record. This is
+   * not always equal to dataSize.
+   */
+  public fileSize(): number { return this.dataSize(); }
   private fmag(): string { return this.data.toString('ascii', 58, 60); }
   /**
    * Total size of the header, including padding bytes.
@@ -129,17 +135,17 @@ export class ARCommonFile implements ARFile {
    * padding before next archive member).
    */
   public totalSize(): number {
-    var headerSize = this.headerSize(), fileSize = this.fileSize();
+    var headerSize = this.headerSize(), dataSize = this.dataSize();
     // All archive members are 2-byte aligned, so there's padding bytes after
     // the data section.
-    return headerSize + fileSize + getPaddingBytes(fileSize, 2);
+    return headerSize + dataSize + getPaddingBytes(dataSize, 2);
   }
   /**
    * Returns a *slice* of the backing buffer that has all of the file's data.
    */
   public fileData(): NodeBuffer {
     var headerSize = this.headerSize();
-    return this.data.slice(headerSize, headerSize + this.fileSize());
+    return this.data.slice(headerSize, headerSize + this.dataSize());
   }
 }
 
@@ -182,6 +188,12 @@ export class BSDARFile extends ARCommonFile implements ARFile {
     return name;
   }
   /**
+   * dataSize = appendedNameSize + fileSize
+   */
+  public fileSize(): number {
+    return this.dataSize() - this.appendedNameSize();
+  }
+  /**
    * Returns a *slice* of the backing buffer that has all of the file's data.
    * For BSD archives, we need to add in the size of the file name, which,
    * unfortunately, is included in the fileSize number.
@@ -190,7 +202,7 @@ export class BSDARFile extends ARCommonFile implements ARFile {
     var headerSize = this.headerSize(),
         appendedNameSize = this.appendedNameSize();
     return this.data.slice(headerSize + appendedNameSize,
-                           headerSize + this.fileSize() - appendedNameSize);
+                           headerSize + appendedNameSize + this.fileSize());
   }
 }
 
