@@ -1,0 +1,3 @@
+node_modules/*
+bower_components/*
+tscommand.tmp.txt
