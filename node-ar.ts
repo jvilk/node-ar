@@ -1,6 +1,10 @@
 /// <reference path="bower_components/DefinitelyTyped/node/node.d.ts" />
-/// <reference path="node-ar.d.ts" />
+/// <reference path="interface/node-ar.d.ts" />
+import fs = require('fs');
+import path = require('path');
+
 export class Archive {
+  private files: ARFile[] = [];
   constructor(private data: NodeBuffer) {
     // Verify that it begins with "!<arch>\n".
     if (data.toString('utf8', 0, 8) !== "!<arch>\n") {
@@ -14,16 +18,33 @@ export class Archive {
    * Currently only supports BSD-style headers.
    */
   private createFiles() {
-    var offset = 8, files: ARFile[] = [], file: ARFile;
-    console.log("START");
+    // Should only be called once.
+    if (this.files.length > 0) return;
+
+    var offset = 8, file: ARFile;
     while (offset < this.data.length) {
       file = new BSDARFile(this.data.slice(offset));
-      console.log("File: \"" + file.name() + "\"");
-      console.log("Contents Size: " + file.fileSize());
-      console.log("Contents:\n" + file.fileData().toString());
+      this.files.push(file);
       offset += file.totalSize();
     }
-    console.log("END");
+  }
+
+  /**
+   * Get an array of the files in the archive.
+   */
+  public getFiles(): ARFile[] { return this.files; }
+  /**
+   * Extracts all of the files in the archive to the given path.
+   */
+  public extractAllTo(dirPath: string): void {
+    var i, file;
+    if (!fs.existsSync(dirPath)) {
+      throw new Error("Extraction path must exist.");
+    }
+    for (i = 0; i < this.files.length; i++) {
+      file = this.files[i];
+      fs.writeFileSync(path.resolve(dirPath, file.name()), file.data());
+    }
   }
 }
 
@@ -108,7 +129,7 @@ export class BSDARFile extends ARCommonFile implements ARFile {
   constructor(data: NodeBuffer) {
     super(data);
     // Check if the filename is appended to the header or not.
-    this.appendedFileName = super.name().substr(3) === "#!/";
+    this.appendedFileName = super.name().substr(0, 3) === "#1/";
   }
   /**
    * BSD ar stores extended filenames by placing the string "#1/" followed by

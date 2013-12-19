@@ -5,6 +5,9 @@
     "typescript": "0.9.5",
     "requirejs": "*"
   },
+  "devDependencies": {
+    "glob": "*"
+  },
   "repository": {
     "type": "git",
     "url": "https://github.com/jvilk/node-ar.git"
