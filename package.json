@@ -3,7 +3,10 @@
   "version": "0.0.1",
   "dependencies": {
     "typescript": "0.9.5",
-    "requirejs": "*"
+    "requirejs": "*",
+    "grunt": "*",
+    "grunt-ts": "latest",
+    "grunt-shell": "~0.5.0"
   },
   "devDependencies": {
     "glob": "*"
