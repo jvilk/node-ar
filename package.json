@@ -14,12 +14,11 @@
     }
   ],
   "main": "lib/ar.js",
-  "dependencies": {},
   "devDependencies": {
     "grunt": "*",
     "grunt-ts": "latest",
     "grunt-shell": "~0.5.0",
-    "glob": "*",
+    "glob": "*"
   },
   "repository": {
     "type": "git",
