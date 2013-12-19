@@ -1,12 +1,12 @@
-node-ar
-=======
+ar
+==
 
 A Node library for reading [Unix archive files](http://en.wikipedia.org/wiki/Ar_\(Unix\)).
 
 Usage
 =====
 ```javascript
-var ar = require('node-ar'),
+var ar = require('ar'),
     fs = require('fs'),
     path = require('path');
 

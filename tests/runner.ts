@@ -1,11 +1,11 @@
 /// <reference path="../bower_components/DefinitelyTyped/node/node.d.ts" />
 /**
- * node-ar test runner command line utility
+ * ar test runner command line utility
  *
  * Run with no arguments to run all of the tests.
  * Run with one or more archive file names to run particular tests.
  */
-import ar = require('../node-ar');
+import ar = require('../ar');
 import fs = require('fs');
 import path = require('path');
 import util = require('util');

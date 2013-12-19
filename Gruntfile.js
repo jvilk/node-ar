@@ -39,7 +39,7 @@ module.exports = function(grunt) {
         comments: true
       },
       release: {
-        src: ["node-ar.ts"],
+        src: ["ar.ts"],
         outDir: 'lib',
         options: {
           declaration: true
