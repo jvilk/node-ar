@@ -1,7 +1,21 @@
 /// <reference path="bower_components/DefinitelyTyped/node/node.d.ts" />
-/// <reference path="interface/node-ar.d.ts" />
 import fs = require('fs');
 import path = require('path');
+
+/**
+ * Contains information from a file's header.
+ */
+export interface ARFile {
+  name(): string;
+  date(): Date;
+  uid(): number;
+  gid(): number;
+  mode(): number;
+  fileSize(): number;
+  headerSize(): number;
+  totalSize(): number;
+  fileData(): NodeBuffer;
+}
 
 export class Archive {
   private files: ARFile[] = [];

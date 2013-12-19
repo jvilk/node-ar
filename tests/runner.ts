@@ -1,5 +1,4 @@
 /// <reference path="../bower_components/DefinitelyTyped/node/node.d.ts" />
-/// <reference path="../interface/node-ar.d.ts" />
 /**
  * node-ar test runner command line utility
  *
@@ -49,7 +48,7 @@ class Test {
   /**
    * Compares the ar file against the real file on the hard drive.
    */
-  private testFile(arFile: ARFile, filePath: string) {
+  private testFile(arFile: ar.ARFile, filePath: string) {
     var realFileContents: NodeBuffer = fs.readFileSync(filePath),
         arFileContents: NodeBuffer = arFile.fileData(), i: number;
     if (realFileContents.length !== arFileContents.length) {
@@ -74,8 +73,8 @@ class Test {
    */
   private testFiles() {
     var files: string[] = fs.readdirSync(this.dirPath),
-        arFiles: ARFile[] = this.archive.getFiles(),
-        i: number, file: ARFile, name: string, nameIdx: number;
+        arFiles: ar.ARFile[] = this.archive.getFiles(),
+        i: number, file: ar.ARFile, name: string, nameIdx: number;
     for (i = 0; i < arFiles.length; i++) {
       file = arFiles[i];
       name = file.name();
