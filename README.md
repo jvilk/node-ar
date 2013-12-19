@@ -7,16 +7,19 @@ Usage
 =====
 ```javascript
 var ar = require('node-ar'),
-    fs = require('fs');
+    fs = require('fs'),
+    path = require('path');
 
 
 // Extracts all of the files in "some_archive.a" to the folder "./output".
 var outputDir = "./output";
+if (!fs.existsSync(outputDir)) fs.mkdirSync(outputDir);
+
 var archive = new ar.Archive(fs.readFileSync('some_archive.a'));
 var files = archive.getFiles();
 for (var i = 0; i < files.length; i++) {
   var file = files[i];
-  fs.writeFileSync(path.resolve(outputDir, file.name()), file.data());
+  fs.writeFileSync(path.resolve(outputDir, file.name()), file.fileData());
 }
 ```
 
