@@ -48,19 +48,6 @@ export class Archive {
    * Get an array of the files in the archive.
    */
   public getFiles(): ARFile[] { return this.files; }
-  /**
-   * Extracts all of the files in the archive to the given path.
-   */
-  public extractAllTo(dirPath: string): void {
-    var i, file;
-    if (!fs.existsSync(dirPath)) {
-      throw new Error("Extraction path must exist.");
-    }
-    for (i = 0; i < this.files.length; i++) {
-      file = this.files[i];
-      fs.writeFileSync(path.resolve(dirPath, file.name()), file.data());
-    }
-  }
 }
 
 /**
