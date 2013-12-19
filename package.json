@@ -1,5 +1,6 @@
 {
   "name": "ar",
+  "description": "ar - Read Unix archive files.",
   "version": "0.0.1",
   "homepage": "https://github.com/jvilk/node-ar",
   "author": {
