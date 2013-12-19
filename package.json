@@ -13,7 +13,7 @@
       "url": "https://github.com/jvilk/node-ar/blob/master/LICENSE"
     }
   ],
-  "main": "lib/ar",
+  "main": "lib/ar.js",
   "dependencies": {
     "grunt": "*",
     "grunt-ts": "latest",
