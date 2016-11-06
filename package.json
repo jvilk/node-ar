@@ -17,7 +17,7 @@
   "devDependencies": {
     "grunt": "*",
     "grunt-ts": "latest",
-    "grunt-shell": "~0.5.0",
+    "grunt-shell": "~2.1.0",
     "glob": "*"
   },
   "repository": {
